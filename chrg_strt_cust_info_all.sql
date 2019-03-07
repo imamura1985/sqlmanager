@@ -140,7 +140,11 @@ UNION ALL
          ,       cc.CNTCT_NM_LST_NM || cc.CNTCT_NM_FST_NM as 氏名 --氏名
          ,       to_char(to_date(cu.BRTH_DT,'YYYY/MM/DD'),'FMYYYY/MM/DD')  as 生年月日              --生年月日
          ,       cct.CNTCT_TEL_NO as 電話番号 --連絡先電話番号
-         ,       null as 初期契約解除 -- 初期契約解除
+         ,       case when C.CUST_ID is not null then
+                   '初期契約解除'
+                 else
+                   null
+                 end as 初期契約解除 -- 初期契約解除
          from     M_PRDCT                   mp --商品マスタ
          ,        T_CNTRCT_DTL              cd --契約明細
          ,        T_CNTRCT             cn  --契約
@@ -163,6 +167,11 @@ UNION ALL
                    having count(HC_DVSN_ACCPT_NO) > 0
                    order by CNTRCT_ID)
                   B -- 光コラボ管理の転用承諾番号が存在する契約ID
+         ,        (select CUST_ID, CNTRCT_ID
+                   from M_CUST_CRRSPND_MEMO
+                   where CUST_CRRSPND_MEMO like '%初期契約解除%'
+                   group by CUST_ID, CNTRCT_ID)
+                  C -- 顧客対応メモ 初期契約解除のみ
          where    
                  mp.PRDCT_ID         = cd.PRDCT_ID       -- 商品マスタ.商品ID ＝ 契約明細.商品ID
          and     cn.CNTRCT_ID        = cd.CNTRCT_ID      -- 契約.契約ID ＝ 契約明細.契約ID
@@ -178,6 +187,8 @@ UNION ALL
          and     ch.DL_UNT_ID        = mdu.DL_UNT_ID     -- コース履歴.取扱単位ID ＝ 取扱単位.取扱単位ID
          and     cd.DL_UNT_ID        = md.DL_UNT_ID      -- 契約明細.取扱単位ID ＝ 取扱商品リスト.取扱単位ID
          and     cd.CNTRCT_ID        = vc.CNTRCT_ID      -- 契約明細.契約ID = csrweb顧客のステータスview.契約ID
+         and     cn.CUST_ID          = C.CUST_ID(+)         -- 契約.顧客ID = 顧客対応メモ.顧客ID
+         and     cn.CNTRCT_ID        = C.CNTRCT_ID(+)       -- 契約.契約ID = 顧客対応メモ.契約ID
          and     ch.DLT_FLG          = 0
          and     cn.DLT_FLG          = 0
          and     cu.DLT_FLG          = 0
@@ -315,7 +326,11 @@ UNION ALL
          ,       cc.CNTCT_NM_LST_NM || cc.CNTCT_NM_FST_NM as 氏名 --氏名
          ,       to_char(to_date(cu.BRTH_DT,'YYYY/MM/DD'),'FMYYYY/MM/DD')  as 生年月日              --生年月日
          ,       cct.CNTCT_TEL_NO as 電話番号 --連絡先電話番号
-         ,       null as 初期契約解除 -- 初期契約解除
+         ,       case when C.CUST_ID is not null then
+                   '初期契約解除'
+                 else
+                   null
+                 end as 初期契約解除 -- 初期契約解除
          from     M_PRDCT                   mp --商品マスタ
          ,        T_CNTRCT_DTL              cd --契約明細
          ,        T_CNTRCT             cn  --契約
@@ -338,6 +353,11 @@ UNION ALL
                    having count(HC_DVSN_ACCPT_NO) = 0
                    order by CNTRCT_ID)
                   B -- 光コラボ管理の転用承諾番号が存在しない契約ID
+         ,        (select CUST_ID, CNTRCT_ID
+                   from M_CUST_CRRSPND_MEMO
+                   where CUST_CRRSPND_MEMO like '%初期契約解除%'
+                   group by CUST_ID, CNTRCT_ID)
+                  C -- 顧客対応メモ 初期契約解除のみ
          where    
                  mp.PRDCT_ID         = cd.PRDCT_ID       -- 商品マスタ.商品ID ＝ 契約明細.商品ID
          and     cn.CNTRCT_ID        = cd.CNTRCT_ID      -- 契約.契約ID ＝ 契約明細.契約ID
@@ -353,6 +373,8 @@ UNION ALL
          and     ch.DL_UNT_ID        = mdu.DL_UNT_ID     -- コース履歴.取扱単位ID ＝ 取扱単位.取扱単位ID
          and     cd.DL_UNT_ID        = md.DL_UNT_ID      -- 契約明細.取扱単位ID ＝ 取扱商品リスト.取扱単位ID
          and     cd.CNTRCT_ID        = vc.CNTRCT_ID      -- 契約明細.契約ID = csrweb顧客のステータスview.契約ID
+         and     cn.CUST_ID          = C.CUST_ID(+)         -- 契約.顧客ID = 顧客対応メモ.顧客ID
+         and     cn.CNTRCT_ID        = C.CNTRCT_ID(+)       -- 契約.契約ID = 顧客対応メモ.契約ID
          and     ch.DLT_FLG          = 0
          and     cn.DLT_FLG          = 0
          and     cu.DLT_FLG          = 0
@@ -491,7 +513,11 @@ UNION ALL
              ,       cc.CNTCT_NM_LST_NM || cc.CNTCT_NM_FST_NM as 氏名 --氏名
              ,       to_char(to_date(cu.BRTH_DT,'YYYY/MM/DD'),'FMYYYY/MM/DD')  as 生年月日              --生年月日
              ,       cct.CNTCT_TEL_NO as 電話番号 --連絡先電話番号
-             ,       null as 初期契約解除 -- 初期契約解除
+             ,       case when C.CUST_ID is not null then
+                       '初期契約解除'
+                     else
+                       null
+                     end as 初期契約解除 -- 初期契約解除
              from     M_PRDCT                   mp --商品マスタ
              ,        T_CNTRCT_DTL              cd --契約明細
              ,        T_CNTRCT             cn  --契約
@@ -508,6 +534,11 @@ UNION ALL
                        from T_AGNT_APPLY_USR 
                        group by cntrct_id)
                       A -- 代理店一括申込ユーザの契約IDごとの代理店一括申込IDの最小値
+             ,        (select CUST_ID, CNTRCT_ID
+                       from M_CUST_CRRSPND_MEMO
+                       where CUST_CRRSPND_MEMO like '%初期契約解除%'
+                       group by CUST_ID, CNTRCT_ID)
+                      C -- 顧客対応メモ 初期契約解除のみ
              where    
                      mp.PRDCT_ID         = cd.PRDCT_ID       -- 商品マスタ.商品ID ＝ 契約明細.商品ID
              and     cn.CNTRCT_ID        = cd.CNTRCT_ID      -- 契約.契約ID ＝ 契約明細.契約ID
@@ -522,6 +553,8 @@ UNION ALL
              and     ch.DL_UNT_ID        = mdu.DL_UNT_ID     -- コース履歴.取扱単位ID ＝ 取扱単位.取扱単位ID
              and     cd.DL_UNT_ID        = md.DL_UNT_ID      -- 契約明細.取扱単位ID ＝ 取扱商品リスト.取扱単位ID
              and     cd.CNTRCT_ID        = vc.CNTRCT_ID      -- 契約明細.契約ID = csrweb顧客のステータスview.契約ID
+             and     cn.CUST_ID          = C.CUST_ID(+)         -- 契約.顧客ID = 顧客対応メモ.顧客ID
+             and     cn.CNTRCT_ID        = C.CNTRCT_ID(+)       -- 契約.契約ID = 顧客対応メモ.契約ID
              and     ch.DLT_FLG          = 0
              and     cn.DLT_FLG          = 0
              and     cu.DLT_FLG          = 0
@@ -550,4 +583,5 @@ UNION ALL
 /* -----------------------------------------------------------------------------
  * 変更履歴
  * 20190213 今村 新規作成
+ * 20190307 今村 初期契約解除の抽出カラム追加
  */ -----------------------------------------------------------------------------
